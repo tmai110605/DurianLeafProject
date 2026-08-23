@@ -19,7 +19,7 @@ from weather_kb import *
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # =====================================================
-# KNOWLEDGE BASE (load 1 lần khi import)
+# KNOWLEDGE BASE (load once upon import)
 # =====================================================
 
 _CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -165,8 +165,8 @@ def overlay_cam_on_image(rgb_img, cam, alpha=0.45):
 
 def estimate_depth(pil_img, max_size=200):
     """
-    Trả về depth_small đã normalize và scale,
-    cùng với (new_h, new_w) để resize CAM theo.
+    Return normalized and scaled depth_small,
+    along with (new_h, new_w) for CAM resizing.
     """
     depth_pipe = hf_pipeline(
         "depth-estimation",
@@ -205,21 +205,21 @@ def visualize_geo_gradcam(
     show=False,
 ):
     """
-    Vẽ Geo-GradCAM: depth surface modulated bởi CAM attention.
+    Render Geo-GradCAM: depth surface modulated by CAM attention.
 
     Parameters
     ----------
-    depth_small     : np.ndarray (new_h, new_w) — depth đã normalize
-    cam_resized     : np.ndarray (new_h, new_w) — CAM đã resize & normalize
-    task_name       : str — tên task để hiển thị trên title
-    attention_boost : float — hệ số boost vùng attention lên trục Z
-    output_html     : str hoặc None — nếu có, lưu file html
-    show            : bool — hiển thị trực tiếp (dùng khi chạy script)
+    depth_small     : np.ndarray (new_h, new_w) — normalized depth map
+    cam_resized     : np.ndarray (new_h, new_w) — resized & normalized CAM
+    task_name       : str — task name for figure title
+    attention_boost : float — boost factor for attention region along Z-axis
+    output_html     : str or None — if provided, save HTML file
+    show            : bool — display interactively (used in standalone script)
     """
     z_visual = depth_small * (1 + attention_boost * cam_resized)
 
     x = np.arange(new_w)
-    y = np.arange(new_h - 1, -1, -1)   # flip Y để khớp hệ tọa độ ảnh
+    y = np.arange(new_h - 1, -1, -1)   # flip Y to match image coordinate system
 
     fig = go.Figure(
         data=[
@@ -277,23 +277,23 @@ def run_pipeline(
     use_weather=True,
 ):
     """
-    Pipeline đầy đủ:
-      0. Lấy vị trí + thời tiết (nếu use_weather=True)
-      1. Load ảnh
+    Full end-to-end pipeline:
+      0. Fetch location + weather (if use_weather=True)
+      1. Load image
       2. Depth estimation (Depth Anything V2)
-      3. Load model + phân loại bệnh & severity
-      4. Grad-CAM (cho mỗi task trong tasks)
-      5. Align CAM với depth map + vẽ Geo-GradCAM 3D
+      3. Load model + classify disease & severity
+      4. Grad-CAM (for each task in tasks)
+      5. Align CAM with depth map + render Geo-GradCAM 3D
       +  LLM recommendation
 
     Returns
     -------
-    dict chứa prediction results, recommendation, và paths file đã lưu.
+    dict containing prediction results, recommendation, and saved output paths.
     """
     os.makedirs(output_dir, exist_ok=True)
     base_name = os.path.splitext(os.path.basename(str(image_path)))[0]
 
-    # ── 0. Vị trí + thời tiết ──────────────────────
+    # ── 0. Location + Weather ──────────────────────
     weather_data = None
     location     = None
 
@@ -311,7 +311,7 @@ def run_pipeline(
             print(f"  Weather lookup failed: {e}")
             weather_data = None
 
-    # ── 1. Load ảnh ────────────────────────────────
+    # ── 1. Load Image ────────────────────────────────
     print("[1/5] Loading image...")
     pil_img = Image.open(image_path).convert("RGB")
 
@@ -319,7 +319,7 @@ def run_pipeline(
     print("[2/5] Running Depth Anything V2...")
     depth_small, new_h, new_w = estimate_depth(pil_img, max_size=max_size)
 
-    # ── 3. Load model + phân loại ──────────────────
+    # ── 3. Load Model + Classification ───────────────
     print("[3/5] Loading model & computing predictions...")
     model = MobileNetV2MultiTask(
         num_disease_classes=5,
@@ -353,7 +353,7 @@ def run_pipeline(
         disease_confidence=disease_probs[disease_idx].item(),
         severity_confidence=severity_probs[severity_idx].item(),
         kb=KB,
-        model="llama-3.3-70b-versatile",
+        model="qwen/qwen3.6-27b",
         weather_scenario=weather_scenario,
         weather_data=weather_data,
         location=location,
@@ -377,7 +377,7 @@ def run_pipeline(
             input_tensor, task=task_for_cam, class_idx=None
         )
 
-        # ── Resize CAM → ảnh gốc (cho 2D overlay) ─
+        # ── Resize CAM -> original image (for 2D overlay) ─
         cam_2d = cv2.resize(cam, (img_size, img_size))
         cam_2d = (cam_2d - cam_2d.min()) / (cam_2d.max() + 1e-8)
 
@@ -391,7 +391,7 @@ def run_pipeline(
             "geo_gradcam_html":  None,
         }
 
-        # ── 4a. Lưu 2D overlay ────────────────────
+        # ── 4a. Save 2D overlay ────────────────────
         if save_2d_overlay:
             overlay = overlay_cam_on_image(original_rgb, cam_2d)
             overlay_path = os.path.join(
@@ -443,7 +443,7 @@ def run_pipeline(
 # =====================================================
 
 if __name__ == "__main__":
-    # Đảm bảo thư mục làm việc hiện tại luôn là thư mục gốc của dự án
+    # Ensure current working directory is always project root
     _APP_DIR = os.path.dirname(os.path.abspath(__file__))
     _PROJECT_ROOT = os.path.dirname(_APP_DIR)
     os.chdir(_PROJECT_ROOT)

@@ -1,0 +1,64 @@
+﻿group,group_value,metric,num_cases,constrained_%,unconstrained_%,diff_pp
+Overall,all,Total cases,78,,,
+Overall,all,Cases with complete data (comparable),78,,,
+Overall,all,Cases with missing data (API/rate limits),0,,,
+Overall,all,Mentions pesticide / 'chemical' terms,78,69.23,100.0,30.77
+Overall,all,Names specific drug / active ingredient,78,0.0,88.46,88.46
+Overall,all,"Provides specific numeric dosage (g/L, mL/L, ppm, ...)",78,0.0,0.0,0.0
+Overall,all,"Mentions specific weather numbers (°C, mm, % humidity)",78,5.13,21.79,16.66
+Overall,all,Recommends spraying,78,47.44,100.0,52.56
+Overall,all,Hallucination (specific information not present in input/context),78,5.13,91.03,85.9
+Disease (disease),algal,Mentions pesticide / 'chemical' terms,18,88.89,100.0,11.11
+Disease (disease),algal,Names specific drug / active ingredient,18,0.0,100.0,100.0
+Disease (disease),algal,"Provides specific numeric dosage (g/L, mL/L, ppm, ...)",18,0.0,0.0,0.0
+Disease (disease),algal,"Mentions specific weather numbers (°C, mm, % humidity)",18,0.0,50.0,50.0
+Disease (disease),algal,Recommends spraying,18,61.11,100.0,38.89
+Disease (disease),algal,Hallucination (specific information not present in input/context),18,0.0,100.0,100.0
+Disease (disease),allocaridara_attack,Mentions pesticide / 'chemical' terms,18,77.78,100.0,22.22
+Disease (disease),allocaridara_attack,Names specific drug / active ingredient,18,0.0,83.33,83.33
+Disease (disease),allocaridara_attack,"Provides specific numeric dosage (g/L, mL/L, ppm, ...)",18,0.0,0.0,0.0
+Disease (disease),allocaridara_attack,"Mentions specific weather numbers (°C, mm, % humidity)",18,0.0,33.33,33.33
+Disease (disease),allocaridara_attack,Recommends spraying,18,50.0,100.0,50.0
+Disease (disease),allocaridara_attack,Hallucination (specific information not present in input/context),18,0.0,94.44,94.44
+Disease (disease),blight,Mentions pesticide / 'chemical' terms,18,66.67,100.0,33.33
+Disease (disease),blight,Names specific drug / active ingredient,18,0.0,100.0,100.0
+Disease (disease),blight,"Provides specific numeric dosage (g/L, mL/L, ppm, ...)",18,0.0,0.0,0.0
+Disease (disease),blight,"Mentions specific weather numbers (°C, mm, % humidity)",18,0.0,0.0,0.0
+Disease (disease),blight,Recommends spraying,18,27.78,100.0,72.22
+Disease (disease),blight,Hallucination (specific information not present in input/context),18,0.0,100.0,100.0
+Disease (disease),healthy,Mentions pesticide / 'chemical' terms,6,100.0,100.0,0.0
+Disease (disease),healthy,Names specific drug / active ingredient,6,0.0,0.0,0.0
+Disease (disease),healthy,"Provides specific numeric dosage (g/L, mL/L, ppm, ...)",6,0.0,0.0,0.0
+Disease (disease),healthy,"Mentions specific weather numbers (°C, mm, % humidity)",6,0.0,0.0,0.0
+Disease (disease),healthy,Recommends spraying,6,83.33,100.0,16.67
+Disease (disease),healthy,Hallucination (specific information not present in input/context),6,0.0,0.0,0.0
+Disease (disease),phomopsis,Mentions pesticide / 'chemical' terms,18,33.33,100.0,66.67
+Disease (disease),phomopsis,Names specific drug / active ingredient,18,0.0,100.0,100.0
+Disease (disease),phomopsis,"Provides specific numeric dosage (g/L, mL/L, ppm, ...)",18,0.0,0.0,0.0
+Disease (disease),phomopsis,"Mentions specific weather numbers (°C, mm, % humidity)",18,22.22,11.11,-11.11
+Disease (disease),phomopsis,Recommends spraying,18,38.89,100.0,61.11
+Disease (disease),phomopsis,Hallucination (specific information not present in input/context),18,22.22,100.0,77.78
+Severity (severity),0,Mentions pesticide / 'chemical' terms,6,100.0,100.0,0.0
+Severity (severity),0,Names specific drug / active ingredient,6,0.0,0.0,0.0
+Severity (severity),0,"Provides specific numeric dosage (g/L, mL/L, ppm, ...)",6,0.0,0.0,0.0
+Severity (severity),0,"Mentions specific weather numbers (°C, mm, % humidity)",6,0.0,0.0,0.0
+Severity (severity),0,Recommends spraying,6,83.33,100.0,16.67
+Severity (severity),0,Hallucination (specific information not present in input/context),6,0.0,0.0,0.0
+Severity (severity),1,Mentions pesticide / 'chemical' terms,24,50.0,100.0,50.0
+Severity (severity),1,Names specific drug / active ingredient,24,0.0,91.67,91.67
+Severity (severity),1,"Provides specific numeric dosage (g/L, mL/L, ppm, ...)",24,0.0,0.0,0.0
+Severity (severity),1,"Mentions specific weather numbers (°C, mm, % humidity)",24,0.0,20.83,20.83
+Severity (severity),1,Recommends spraying,24,45.83,100.0,54.17
+Severity (severity),1,Hallucination (specific information not present in input/context),24,0.0,100.0,100.0
+Severity (severity),2,Mentions pesticide / 'chemical' terms,24,62.5,100.0,37.5
+Severity (severity),2,Names specific drug / active ingredient,24,0.0,95.83,95.83
+Severity (severity),2,"Provides specific numeric dosage (g/L, mL/L, ppm, ...)",24,0.0,0.0,0.0
+Severity (severity),2,"Mentions specific weather numbers (°C, mm, % humidity)",24,8.33,25.0,16.67
+Severity (severity),2,Recommends spraying,24,29.17,100.0,70.83
+Severity (severity),2,Hallucination (specific information not present in input/context),24,8.33,95.83,87.5
+Severity (severity),3,Mentions pesticide / 'chemical' terms,24,87.5,100.0,12.5
+Severity (severity),3,Names specific drug / active ingredient,24,0.0,100.0,100.0
+Severity (severity),3,"Provides specific numeric dosage (g/L, mL/L, ppm, ...)",24,0.0,0.0,0.0
+Severity (severity),3,"Mentions specific weather numbers (°C, mm, % humidity)",24,8.33,25.0,16.67
+Severity (severity),3,Recommends spraying,24,58.33,100.0,41.67
+Severity (severity),3,Hallucination (specific information not present in input/context),24,8.33,100.0,91.67

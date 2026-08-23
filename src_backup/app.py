@@ -12,16 +12,14 @@ import numpy as np
 from streamlit_geolocation import streamlit_geolocation
 
 # ── Fix working directory ─────────────────────────────────────────────────────
-# Tất cả file (app.py, pipeline.py, KB JSON...) nằm trong src/.
-# pipeline.py dùng path "src/durian_leaf_case_based_recommendation_kb.json"
-# nên cwd phải là thư mục CHA của src/ — giống như khi chạy pipeline.py trực tiếp.
-_APP_DIR      = os.path.dirname(os.path.abspath(__file__))  # .../src
-_PROJECT_ROOT = os.path.dirname(_APP_DIR)                   # thư mục cha
+# app/app.py nằm trong app/, project root là thư mục cha.
+_APP_DIR      = os.path.dirname(os.path.abspath(__file__))  # .../app
+_PROJECT_ROOT = os.path.dirname(_APP_DIR)                   # project root
 os.chdir(_PROJECT_ROOT)
 
-# Thêm src/ vào sys.path để import pipeline, recommender, mobilenetv3_custom
-if _APP_DIR not in sys.path:
-    sys.path.insert(0, _APP_DIR)
+# Thêm project root vào sys.path để import các package: pipeline, models, training
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
 
 
 # ── Label mappings (giữ đồng bộ với recommender.py) ─────────────────────────
@@ -218,7 +216,7 @@ with st.sidebar:
     st.markdown('<p class="sidebar-label">Model checkpoint</p>', unsafe_allow_html=True)
     checkpoint_path = st.text_input(
         "Checkpoint path",
-        value=r"checkpoints/v2batch16_best/best_mobilenetv3_multitask.pth",
+        value=r"checkpoints/v2batch16_best/best_mobilenetv2_multitask.pth",
         label_visibility="collapsed",
         placeholder="path/to/checkpoint.pth",
     )
@@ -336,7 +334,7 @@ output_dir = tempfile.mkdtemp(prefix="durian_output_")
 
 try:
     # Lazy import — user must have pipeline.py on PYTHONPATH
-    from pipeline import run_pipeline  # noqa: E402
+    from pipeline.pipeline import run_pipeline  # noqa: E402
 
     progress.progress(5, text="[1/5] Loading image…")
     progress.progress(10, text="[2/5] Running Depth-Anything V2…")
@@ -432,7 +430,6 @@ with m3:
         <span class="metric-value">{sv_label_disp}</span>
         <span class="badge {badge_cls}">{sv_idx} / 3</span>
     </div>""", unsafe_allow_html=True)
-
 with m4:
     st.markdown(f"""
     <div class="metric-card">
@@ -440,6 +437,66 @@ with m4:
         <span class="metric-value">{sv_conf:.1%}</span>
         {conf_bar(sv_conf)}
     </div>""", unsafe_allow_html=True)
+
+
+# ── Latency & Performance Breakdown ───────────────────────────────────────────
+st.markdown('<hr class="divider">', unsafe_allow_html=True)
+st.markdown("## ⚡ Performance & Latency Breakdown")
+
+exec_times = result.get("execution_times", {})
+t_img_load = exec_times.get("image_loading", 0.0)
+t_cls_load = exec_times.get("classifier_model_loading", 0.0)
+t_cls_infer = exec_times.get("classifier_inference", 0.0)
+t_diag = t_img_load + t_cls_load + t_cls_infer
+
+t_depth_load = exec_times.get("depth_model_load", 0.0)
+t_depth_infer = exec_times.get("depth_inference", 0.0)
+t_cam_calc = exec_times.get("gradcam_computation", 0.0)
+t_render = exec_times.get("geo_gradcam_rendering", 0.0)
+t_gradcam = t_depth_load + t_depth_infer + t_cam_calc + t_render
+
+t_groq = exec_times.get("groq_call", 0.0)
+t_total = exec_times.get("total_pipeline", 0.0)
+
+flops = result.get("depth_flops", 0.0)
+params = result.get("depth_params", 0.0)
+flops_g = flops / 1e9
+params_m = params / 1e6
+
+import torch
+device_name = "GPU (CUDA)" if torch.cuda.is_available() else "CPU"
+
+st.markdown(f"""
+<div class="metric-card" style="border-left: 3px solid var(--accent);">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 0.5rem;">
+        <div>
+            <span class="metric-label" style="color: var(--accent); font-weight: 600;">1. Chẩn đoán bệnh (CNN)</span>
+            <div class="metric-value">{t_diag:.3f} s</div>
+            <span class="metric-sub">Tải ảnh: {t_img_load:.3f}s | Load model: {t_cls_load:.3f}s | Dự đoán: {t_cls_infer:.3f}s</span>
+        </div>
+        <div>
+            <span class="metric-label" style="color: var(--accent); font-weight: 600;">2. Xử lý Geo-GradCAM (3D)</span>
+            <div class="metric-value">{t_gradcam:.3f} s</div>
+            <span class="metric-sub">Depth Load: {t_depth_load:.3f}s | Depth Infer: {t_depth_infer:.3f}s<br>CAM Calc: {t_cam_calc:.3f}s | 3D Render: {t_render:.3f}s</span>
+        </div>
+        <div>
+            <span class="metric-label" style="color: var(--accent); font-weight: 600;">3. Khuyến nghị Groq API</span>
+            <div class="metric-value">{t_groq:.3f} s</div>
+            <span class="metric-sub">Thời gian gửi prompt & nhận kết quả từ Groq LLM</span>
+        </div>
+        <div>
+            <span class="metric-label" style="color: var(--accent); font-weight: 600;">4. Depth Anything V2</span>
+            <div class="metric-value">{flops_g:.2f} GFLOPs</div>
+            <span class="metric-sub">Tham số: {params_m:.2f}M Params (đo bằng thop)</span>
+        </div>
+    </div>
+    <hr class="divider" style="margin: 1.2rem 0 0.6rem 0;">
+    <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.8rem; color: var(--muted);">
+        <span>Tổng thời gian pipeline: <b style="color: var(--accent); font-size: 0.9rem;">{t_total:.3f} s</b></span>
+        <span>Thiết bị chạy mô hình: <b>{device_name}</b></span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 
 # ── Weather info ──────────────────────────────────────────────────────────────

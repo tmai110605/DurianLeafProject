@@ -1,7 +1,7 @@
 """
 models package
 ==============
-Export tất cả kiến trúc model: multi-task và single-task.
+Export all model architectures: multi-task and single-task.
 """
 
 from models.MAFC import MAFC, ChannelGate, SpatialGate, BasicConv

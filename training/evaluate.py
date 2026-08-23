@@ -181,7 +181,7 @@ def resolve_checkpoint_path(args):
 
         return checkpoint_path
 
-    # Trường hợp mặc định: tìm checkpoint trong CHECKPOINT_DIR
+    # Default case: find checkpoint in CHECKPOINT_DIR
     checkpoint_path = CHECKPOINT_DIR / f"best_{args.model}_multitask.pth"
 
     if not checkpoint_path.exists():
@@ -386,7 +386,7 @@ def main():
         "severity_f1_macro": severity_f1_macro,
     }
 
-    # Nếu checkpoint có Params/FLOPs thì lưu lại vào metrics
+    # If checkpoint contains Params/FLOPs, save them to metrics
     for key in [
         "total_params",
         "trainable_params",

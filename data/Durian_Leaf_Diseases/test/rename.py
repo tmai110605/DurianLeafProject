@@ -34,14 +34,14 @@ NORMALIZED_LABEL = {
 
 IMAGE_EXTS = [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tif", ".tiff"]
 
-# Bước 1: đổi toàn bộ ảnh sang tên tạm để tránh trùng tên
+# Step 1: rename all images to temporary names to prevent filename collisions
 temp_records = []
 
 for class_name in CLASS_ORDER:
     class_dir = TEST_ROOT / class_name
 
     if not class_dir.exists():
-        print(f"Không thấy folder: {class_dir}")
+        print(f"Folder not found: {class_dir}")
         continue
 
     image_paths = []
@@ -51,7 +51,7 @@ for class_name in CLASS_ORDER:
 
     image_paths = sorted(set(image_paths))
 
-    print(f"{class_name}: {len(image_paths)} ảnh")
+    print(f"{class_name}: {len(image_paths)} images")
 
     for i, old_path in enumerate(image_paths, start=1):
         temp_name = f"__tmp_rename_{class_name.replace(' ', '_')}_{i:06d}{old_path.suffix.lower()}"
@@ -69,7 +69,7 @@ for class_name in CLASS_ORDER:
             "original_extension": old_path.suffix.lower()
         })
 
-# Bước 2: convert sang JPG và đổi tên chuẩn tăng liên tục
+# Step 2: convert to JPG and rename with sequential standard IDs
 rows = []
 counter = 1
 
@@ -89,7 +89,7 @@ for record in temp_records:
             img = img.convert("RGB")
             img.save(new_path, "JPEG", quality=95)
 
-        # Xóa ảnh tạm sau khi convert thành công
+        # Delete temporary image after successful conversion
         temp_path.unlink()
 
         rows.append({
@@ -107,13 +107,13 @@ for record in temp_records:
         counter += 1
 
     except Exception as e:
-        print(f"Lỗi convert {temp_path}: {e}")
-        # Không xóa temp_path nếu lỗi để còn kiểm tra lại
+        print(f"Error converting {temp_path}: {e}")
+        # Do not delete temp_path if error occurs for inspection
 
 df = pd.DataFrame(rows)
 df.to_csv(METADATA_PATH, index=False, encoding="utf-8-sig")
 
-print("\nHoàn tất đổi tên + convert JPG.")
-print(f"Tổng số ảnh xử lý thành công: {len(df)}")
+print("\nCompleted renaming + JPG conversion.")
+print(f"Total successfully processed images: {len(df)}")
 print(f"Metadata: {METADATA_PATH}")
 print(df.groupby("disease_type").size())

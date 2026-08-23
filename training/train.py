@@ -29,7 +29,7 @@ from training.config import (
 from training.dataset import DurianLeafDataset
 from training.utils import set_seed, get_device, count_parameters, calculate_flops
 
-# Các model custom
+# Custom models
 from models.mobilenetv3_custom import (
     MobileNetV2MultiTask,
     MobileNetV3SmallMultiTask,

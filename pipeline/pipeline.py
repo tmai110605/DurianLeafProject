@@ -420,7 +420,7 @@ def run_pipeline(
         disease_confidence=disease_probs[disease_idx].item(),
         severity_confidence=severity_probs[severity_idx].item(),
         kb=KB,
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         weather_scenario=weather_scenario,
         weather_data=weather_data,
         location=location,

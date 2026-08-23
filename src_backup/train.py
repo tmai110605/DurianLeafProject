@@ -29,7 +29,7 @@ from config import (
 from dataset import DurianLeafDataset
 from utils import set_seed, get_device, count_parameters, calculate_flops
 
-# Các model custom của bạn
+# Custom models
 from mobilenetv3_custom import (
     MobileNetV2MultiTask,
     MobileNetV3SmallMultiTask,

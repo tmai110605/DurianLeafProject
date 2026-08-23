@@ -280,7 +280,7 @@ Yêu cầu:
 
 def call_groq(
     prompt: str,
-    model: str = "llama-3.3-70b-versatile",
+    model: str = "qwen/qwen3.6-27b",
     max_tokens: int = 1024,
     temperature: float = 0.3,
     api_key: Optional[str] = None,
@@ -319,7 +319,7 @@ def call_groq(
 
 def get_recommendation(
     disease_idx, severity_idx, kb,
-    api_key=None, model="llama-3.3-70b-versatile", max_tokens=1024,
+    api_key=None, model="qwen/qwen3.6-27b", max_tokens=1024,
     disease_confidence=None, severity_confidence=None,
     weather_scenario="WS_NORMAL",
     weather_data=None, location=None,
@@ -395,7 +395,7 @@ if __name__ == "__main__":
         disease_idx=1,
         severity_idx=2,
         kb=kb,
-        model="llama-3.3-70b-versatile",
+        model="qwen/qwen3.6-27b",
     )
 
     print(result["recommendation_text"])
